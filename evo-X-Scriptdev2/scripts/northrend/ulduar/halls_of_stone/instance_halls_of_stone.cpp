@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,13 +16,20 @@
 
 /* ScriptData
 SDName: Instance_Halls_of_Stone
-SD%Complete: 10%
+SD%Complete: 0%
 SDComment:
 SDCategory: Halls of Stone
 EndScriptData */
 
 #include "precompiled.h"
-#include "halls_of_stone.h"
+#include "def_halls_of_stone.h"
+
+/* Halls of Lightning encounters:
+0 - Krystallus
+1 - Maiden of Grief
+2 - Brann Bronzebeard
+3 - Sjonnir The Ironshaper
+*/
 
 struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
 {
@@ -30,47 +37,66 @@ struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
 
+    uint64 m_uiKrystallusGUID;
+    uint64 m_uiGriefGUID;
     uint64 m_uiBrannGUID;
+    uint64 m_uiSjonnirGUID;
+
     uint64 m_uiKaddrakGUID;
     uint64 m_uiAbedneumGUID;
     uint64 m_uiMarnakGUID;
 
+    uint64 m_uiGriefDoorGUID;
+    uint64 m_uiBrannDoorGUID;
     uint64 m_uiSjonnirDoorGUID;
-    uint64 m_uiTribunalDoorGUID;
-    uint64 m_uiTribunalChestGUID;
-    uint64 m_uiTribunalHeadRightGUID;
-    uint64 m_uiTribunalHeadCenterGUID;
-    uint64 m_uiTribunalHeadLeftGUID;
-    uint64 m_uiTribunalConsoleGUID;
-    uint64 m_uiTribunalFloorGUID;
-    uint64 m_uiSjonnirConsoleGUID;
+
+    uint64 m_uiGoTribunalConsoleGUID;
+    uint64 m_uiGoTribunalChestGUID;
+    uint64 m_uiGoTribunalSkyFloorGUID;
+    uint64 m_uiGoKaddrakGUID;
+    uint64 m_uiGoAbedneumGUID;
+    uint64 m_uiGoMarnakGUID;
 
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-        m_uiBrannGUID               = 0;
-        m_uiKaddrakGUID             = 0;
-        m_uiAbedneumGUID            = 0;
-        m_uiMarnakGUID              = 0;
+        m_uiKrystallusGUID       = 0;
+        m_uiGriefGUID            = 0;
+        m_uiBrannGUID            = 0;
+        m_uiSjonnirGUID          = 0;
 
-        m_uiSjonnirDoorGUID         = 0;
-        m_uiTribunalDoorGUID        = 0;
-        m_uiTribunalChestGUID       = 0;
-        m_uiTribunalHeadRightGUID   = 0;
-        m_uiTribunalHeadCenterGUID  = 0;
-        m_uiTribunalHeadLeftGUID    = 0;
-        m_uiTribunalConsoleGUID     = 0;
-        m_uiTribunalFloorGUID       = 0;
-        m_uiSjonnirConsoleGUID      = 0;
+        m_uiKaddrakGUID          = 0;
+        m_uiAbedneumGUID         = 0;
+        m_uiMarnakGUID           = 0;
+
+        m_uiGriefDoorGUID        = 0;
+        m_uiBrannDoorGUID        = 0;
+        m_uiSjonnirDoorGUID      = 0;
+
+        m_uiGoTribunalConsoleGUID  = 0;
+        m_uiGoTribunalChestGUID    = 0;
+        m_uiGoTribunalSkyFloorGUID = 0;
+        m_uiGoKaddrakGUID          = 0;
+        m_uiGoAbedneumGUID         = 0;
+        m_uiGoMarnakGUID           = 0;
     }
 
     void OnCreatureCreate(Creature* pCreature)
     {
         switch(pCreature->GetEntry())
         {
+            case NPC_KRYSTALLUS:
+                m_uiKrystallusGUID = pCreature->GetGUID();
+                break;
+            case NPC_GRIEF:
+                m_uiGriefGUID = pCreature->GetGUID();
+                break;
             case NPC_BRANN:
                 m_uiBrannGUID = pCreature->GetGUID();
+                break;
+            case NPC_SJONNIR:
+                m_uiSjonnirGUID = pCreature->GetGUID();
                 break;
             case NPC_KADDRAK:
                 m_uiKaddrakGUID = pCreature->GetGUID();
@@ -88,33 +114,38 @@ struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
-            case GO_DOOR_SJONNIR:
+            case GO_GRIEF_DOOR:
+                m_uiGriefDoorGUID = pGo->GetGUID();
+                if (m_auiEncounter[0] == DONE)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+                break;
+            case GO_BRANN_DOOR:
+                m_uiBrannDoorGUID = pGo->GetGUID();
+                if (m_auiEncounter[1] == DONE)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+                break;
+            case GO_SJONNIR_DOOR:
                 m_uiSjonnirDoorGUID = pGo->GetGUID();
-                break;
-            case GO_DOOR_TRIBUNAL:
-                m_uiTribunalDoorGUID = pGo->GetGUID();
-                break;
-            case GO_TRIBUNAL_CHEST:
-            case GO_TRIBUNAL_CHEST_H:
-                m_uiTribunalChestGUID = pGo->GetGUID();
-                break;
-            case GO_TRIBUNAL_HEAD_RIGHT:
-                m_uiTribunalHeadRightGUID = pGo->GetGUID();
-                break;
-            case GO_TRIBUNAL_HEAD_CENTER:
-                m_uiTribunalHeadCenterGUID = pGo->GetGUID();
-                break;
-            case GO_TRIBUNAL_HEAD_LEFT:
-                m_uiTribunalHeadLeftGUID = pGo->GetGUID();
+                if (m_auiEncounter[2] == DONE)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_TRIBUNAL_CONSOLE:
-                m_uiTribunalConsoleGUID = pGo->GetGUID();
+                m_uiGoTribunalConsoleGUID = pGo->GetGUID();
                 break;
-            case GO_TRIBUNAL_FLOOR:
-                m_uiTribunalFloorGUID = pGo->GetGUID();
+            case GO_TRIBUNAL_CHEST:
+                m_uiGoTribunalChestGUID = pGo->GetGUID();
                 break;
-            case GO_SJONNIR_CONSOLE:
-                m_uiSjonnirConsoleGUID = pGo->GetGUID();
+            case GO_TRIBUNAL_SKY_FLOOR:
+                m_uiGoTribunalSkyFloorGUID = pGo->GetGUID();
+                break;
+            case GO_KADDRAK:
+                m_uiGoKaddrakGUID = pGo->GetGUID();
+                break;
+            case GO_ABEDNEUM:
+                m_uiGoAbedneumGUID = pGo->GetGUID();
+                break;
+            case GO_MARNAK:
+                m_uiGoMarnakGUID = pGo->GetGUID();
                 break;
         }
     }
@@ -123,15 +154,24 @@ struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(uiType)
         {
-            case TYPE_TRIBUNAL:
-                m_auiEncounter[0] = uiData;
+            case TYPE_KRYSTALLUS:
                 if (uiData == DONE)
-                    DoRespawnGameObject(m_uiTribunalChestGUID);
+                    DoUseDoorOrButton(m_uiGriefDoorGUID);
+                m_auiEncounter[0] = uiData;
                 break;
-            case TYPE_MAIDEN:
+            case TYPE_GRIEF:
+                if (uiData == DONE)
+                    DoUseDoorOrButton(m_uiBrannDoorGUID);
                 m_auiEncounter[1] = uiData;
                 break;
-            case TYPE_KRYSTALLUS:
+            case TYPE_BRANN:
+                if (uiData == DONE)
+                {
+                    DoUseDoorOrButton(m_uiSjonnirDoorGUID);
+                    if (GameObject* pChest = instance->GetGameObject(m_uiGoTribunalChestGUID)) // how about heroic
+                        if (pChest && !pChest->isSpawned())
+                            pChest->SetRespawnTime(350000000);
+                }
                 m_auiEncounter[2] = uiData;
                 break;
             case TYPE_SJONNIR:
@@ -144,11 +184,11 @@ struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(uiType)
         {
-            case TYPE_TRIBUNAL:
-                return m_auiEncounter[0];
-            case TYPE_MAIDEN:
-                return m_auiEncounter[1];
             case TYPE_KRYSTALLUS:
+                return m_auiEncounter[0];
+            case TYPE_GRIEF:
+                return m_auiEncounter[1];
+            case TYPE_BRANN:
                 return m_auiEncounter[2];
             case TYPE_SJONNIR:
                 return m_auiEncounter[3];
@@ -160,33 +200,30 @@ struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(uiData)
         {
-            case NPC_BRANN:
+            case DATA_KRYSTALLUS:
+                return m_uiKrystallusGUID;
+            case DATA_GRIEF:
+                return m_uiGriefGUID;
+            case DATA_BRANN:
                 return m_uiBrannGUID;
-            case NPC_KADDRAK:
+            case DATA_SJONNIR:
+                return m_uiSjonnirGUID;
+            case DATA_KADDRAK:
                 return m_uiKaddrakGUID;
-            case NPC_ABEDNEUM:
+            case DATA_ABEDNEUM:
                 return m_uiAbedneumGUID;
-            case NPC_MARNAK:
+            case DATA_MARNAK:
                 return m_uiMarnakGUID;
-            case GO_DOOR_SJONNIR:
-                return m_uiSjonnirDoorGUID;
-            case GO_DOOR_TRIBUNAL:
-                return m_uiTribunalDoorGUID;
-            case GO_TRIBUNAL_CHEST:
-            case GO_TRIBUNAL_CHEST_H:
-                return m_uiTribunalChestGUID;
-            case GO_TRIBUNAL_HEAD_RIGHT:
-                return m_uiTribunalHeadRightGUID;
-            case GO_TRIBUNAL_HEAD_CENTER:
-                return m_uiTribunalHeadCenterGUID;
-            case GO_TRIBUNAL_HEAD_LEFT:
-                return m_uiTribunalHeadLeftGUID;
-            case GO_TRIBUNAL_CONSOLE:
-                return m_uiTribunalConsoleGUID;
-            case GO_TRIBUNAL_FLOOR:
-                return m_uiTribunalFloorGUID;
-            case GO_SJONNIR_CONSOLE:
-                return m_uiSjonnirConsoleGUID;
+            case DATA_GO_TRIBUNAL_CONSOLE:
+                return m_uiGoTribunalConsoleGUID;
+            case DATA_GO_SKY_FLOOR:
+                return m_uiGoTribunalSkyFloorGUID;
+            case DATA_GO_KADDRAK:
+                return m_uiGoKaddrakGUID;
+            case DATA_GO_ABEDNEUM:
+                return m_uiGoAbedneumGUID;
+            case DATA_GO_MARNAK:
+                return m_uiGoMarnakGUID;
         }
         return 0;
     }
@@ -205,3 +242,4 @@ void AddSC_instance_halls_of_stone()
     newscript->GetInstanceData = &GetInstanceData_instance_halls_of_stone;
     newscript->RegisterSelf();
 }
+
