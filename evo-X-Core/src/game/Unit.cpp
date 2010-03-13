@@ -7288,7 +7288,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
                 basepoints[0] = damage * 15 / 100;
                 target = pVictim;
-                trigger_spell_id = 26470;
+                trigger_spell_id = 64413;
             }
             break;
         case SPELLFAMILY_WARRIOR:
