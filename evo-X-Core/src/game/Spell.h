@@ -120,7 +120,7 @@ class SpellCastTargets
         SpellCastTargets();
         ~SpellCastTargets();
 
-        void read( ByteBuffer& data, Unit *caster );
+        void read( ByteBuffer& data, Unit *caster, SpellEntry const* spell = NULL );
         void write( ByteBuffer& data ) const;
 
         SpellCastTargetsReader ReadForCaster(Unit* caster) { return SpellCastTargetsReader(*this,caster); }
@@ -357,6 +357,8 @@ class Spell
         void EffectPlayMusic(SpellEffectIndex eff_idx);
         void EffectSpecCount(SpellEffectIndex eff_idx);
         void EffectActivateSpec(SpellEffectIndex eff_idx);
+        void EffectSummonVehicle(SpellEffectIndex eff_idx);
+        void EffectDamageBuilding(SpellEffectIndex eff_idx);
 
         Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL );
         ~Spell();

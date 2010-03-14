@@ -372,6 +372,18 @@ extern LanguageDesc lang_description[LANGUAGES_COUNT];
 MANGOS_DLL_SPEC LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 class PlayerDumpReader;
+// vehicle system
+#define MAX_VEHICLE_SPELLS 6
+
+struct VehicleDataStructure
+{
+    uint32 v_flags;                                         // vehicle flags, see enum CustomVehicleFLags
+    uint32 v_spells[MAX_VEHICLE_SPELLS];                    // spells
+    uint32 req_aura;                                        // requieres aura on player to enter (eg. in wintergrasp)
+};
+
+typedef UNORDERED_MAP<uint32, VehicleDataStructure> VehicleDataMap;
+typedef std::map<uint32,uint32> VehicleSeatDataMap;
 
 template<typename T>
 class IdGenerator
@@ -657,6 +669,9 @@ class ObjectMgr
         void LoadVendors();
         void LoadTrainerSpell();
 
+        void LoadVehicleData();
+        void LoadVehicleSeatData();
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level) const;
         uint32 GetXPForLevel(uint32 level) const;
@@ -680,6 +695,7 @@ class ObjectMgr
         uint32 GenerateItemTextID() { return m_ItemGuids.Generate(); }
         uint32 GenerateMailID() { return m_MailIds.Generate(); }
         uint32 GeneratePetNumber() { return m_PetNumbers.Generate(); }
+        uint32 GenerateVehicleID() { return m_VehicleGuids.Generate(); }
 
         uint32 CreateItemText(std::string text);
         void AddItemText(uint32 itemTextId, std::string text) { mItemTexts[itemTextId] = text; }
@@ -885,6 +901,24 @@ class ObjectMgr
 
         int GetOrNewIndexForLocale(LocaleConstant loc);
 
+        VehicleDataMap mVehicleData;
+        VehicleSeatDataMap mVehicleSeatData;
+
+        uint32 GetSeatFlags(uint32 seatid)
+        {
+            VehicleSeatDataMap::iterator i = mVehicleSeatData.find(seatid);
+            if(i == mVehicleSeatData.end())
+                return NULL;
+            else
+                return i->second;
+        }
+        VehicleDataStructure const* GetVehicleData(uint32 entry) const
+        {
+            VehicleDataMap::const_iterator itr = mVehicleData.find(entry);
+            if(itr==mVehicleData.end()) return NULL;
+            return &itr->second;
+        }
+
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
             return SpellClickInfoMapBounds(mSpellClickInfoMap.lower_bound(creature_id),mSpellClickInfoMap.upper_bound(creature_id));
@@ -916,10 +950,12 @@ class ObjectMgr
         IdGenerator<uint32> m_MailIds;
         IdGenerator<uint32> m_PetNumbers;
         IdGenerator<uint32> m_GroupIds;
+        IdGenerator<uint32> m_VehicleIds;
 
         // first free low guid for selected guid type
         ObjectGuidGenerator<HIGHGUID_PLAYER>     m_CharGuids;
         ObjectGuidGenerator<HIGHGUID_UNIT>       m_CreatureGuids;
+        ObjectGuidGenerator<HIGHGUID_VEHICLE>    m_VehicleGuids;
         ObjectGuidGenerator<HIGHGUID_ITEM>       m_ItemGuids;
         ObjectGuidGenerator<HIGHGUID_GAMEOBJECT> m_GameobjectGuids;
         ObjectGuidGenerator<HIGHGUID_CORPSE>     m_CorpseGuids;
@@ -979,6 +1015,7 @@ class ObjectMgr
         void CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids);
         void LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
+        void ConvertCreatureAddonPassengers(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelations& map,char const* table);
 
         MailLevelRewardMap m_mailLevelRewardMap;
