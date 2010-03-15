@@ -1,9 +1,7 @@
-Steps to setup Evo-X One Click Server v0.3
-1.Extract to any where of your choosing.
-2.Run EvoX
-3.Setup settings and Test(If you have the Settings.txt file just copy this to the folder,
-  Don't have setup everything again)
-4.Any problems please post them :-)
+1.Run Evo-X
+2.Setup settings and Test(If you have the Settings.txt file just copy this to the folder,
+  Don't have to setup everything again, this only apply from v0.6 and higher)
+3.Any problems please post them :-)
 
 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 CHANGE LOG:							    ||
@@ -64,5 +62,13 @@ v0.6.1								    ||
 #Code clean up							    ||
 #Improved status coding						    ||
 #Changed connection protacols, better stability			    ||
+								    ||
+////////////////////////////////////////////////////////////////////||
+v0.7								    ||
+#some Code improvement done, less resource using		    ||
+#Server Up Timer added						    ||
+#Button added for core updating(Please test)			    ||
+#Button added for Donating(Not right yet, no donation link yet)	    ||
+#Help button added(Only link to Evo-X Home page)		    ||
 								    ||
 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
