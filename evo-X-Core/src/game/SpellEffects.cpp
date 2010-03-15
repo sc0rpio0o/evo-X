@@ -1699,6 +1699,9 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 m_caster->CastCustomSpell(m_caster, 34846, &chargeBasePoints0, NULL, NULL, true);
                 return;
             }
+            //Juggernaut crit bonus
+            if(m_caster->HasAura(64976))
+               m_caster->CastSpell(m_caster, 65156, true);
             // Execute
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x20000000))
             {
@@ -1706,6 +1709,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
 
                 uint32 rage = m_caster->GetPower(POWER_RAGE);
+				uint32 lastrage = 0;
 
                 // up to max 30 rage cost
                 if (rage > 300)
@@ -1738,6 +1742,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             break;
                         }
                     }
+                }
+
+                //Sudden Death
+                if(m_caster->HasAura(52437))
+                {
+                    if(m_caster->HasAura(29723)) lastrage=3;
+                    else if (m_caster->HasAura(29725)) lastrage=7;
+                    else if (m_caster->HasAura(29724)) lastrage=10;
+
+                    if(lastrage < rage)
+                        rage -= lastrage;
                 }
 
                 m_caster->SetPower(POWER_RAGE,m_caster->GetPower(POWER_RAGE)-rage);
@@ -6954,6 +6969,17 @@ void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
     // not all charge effects used in negative spells
     if (unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
         m_caster->Attack(unitTarget, true);
+
+    //Warbringer - remove movement imparing effects
+    Unit::AuraList const& auraClassScripts = m_caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    for(Unit::AuraList::const_iterator itr = auraClassScripts.begin(); itr != auraClassScripts.end(); itr++)
+    {
+        if((*itr)->GetModifier()->m_miscvalue == 6953)
+        {
+            m_caster->RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,(*itr)->GetId(),true);
+            break;
+        }
+    }
 }
 
 void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
