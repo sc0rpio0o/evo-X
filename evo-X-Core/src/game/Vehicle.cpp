@@ -690,7 +690,28 @@ void Vehicle::InstallAllAccessories()
             InstallAccessory(33143,2); // Overload Control Device
             InstallAccessory(33142,1); // Leviathan Defense Turret
             break;
-        case 33214:InstallAccessory(33218,1,false,false);break; // Mechanolift 304-A
+        case 33214:InstallAccessory(33218,1,false);break; // Mechanolift 304-A
+        case 35637:InstallAccessory(34705,0,false);break;
+        case 35633:InstallAccessory(34702,0,false);break;
+        case 35768:InstallAccessory(34701,0,false);break;
+        case 34658:InstallAccessory(34657,0,false);break;
+        case 35636:InstallAccessory(34703,0,false);break;
+        case 35638:InstallAccessory(35572,0,false);break;
+        case 35635:InstallAccessory(35569,0,false);break;
+        case 35640:InstallAccessory(35571,0,false);break;
+        case 35641:InstallAccessory(35570,0,false);break;
+        case 35634:InstallAccessory(35617,0,false);break;
+		case 35491:InstallAccessory(35451,0,false);break; //Black Knight
+        case 33298:InstallAccessory(35332,0);break;       //Darnassian Nightsaber
+        case 33416:InstallAccessory(35330,0);break;       //Exodar Elekk
+        case 33297:InstallAccessory(35328,0);break;       //Stormwind Steed
+        case 33414:InstallAccessory(35327,0);break;       //Forsaken Warhorse
+        case 33301:InstallAccessory(35331,0);break;       //Gnomeregan Mechanostrider
+        case 33408:InstallAccessory(35329,0);break;       //Ironforge Ram
+        case 33300:InstallAccessory(35325,0);break;       //Thunder Bluff Kodo
+        case 33409:InstallAccessory(35314,0);break;       //Orgrimmar Wolf
+        case 33418:InstallAccessory(35326,0);break;       //Silvermoon Hawkstrider
+        case 33299:InstallAccessory(35323,0);break;       //Darkspear Raptor
     }
 }
 
