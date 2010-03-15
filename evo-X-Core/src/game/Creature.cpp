@@ -1905,7 +1905,7 @@ float Creature::GetBaseSpeed() const
             }
         }
     }
-    return m_creatureInfo->speed;
+	return m_creatureInfo->speed_run;
 }
 
 bool Creature::HasSpell(uint32 spellID) const
